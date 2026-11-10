@@ -2558,6 +2558,9 @@
             <div class="w-64 sm:w-72 mt-4">
               <label class="block text-[11px] text-slate-400 mb-1 font-medium">Или вставьте ссылку (URL) / нажмите <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-amber-400 font-bold">Ctrl+V</kbd>:</label>
               <input type="text" id="rate-poster-url" placeholder="https://... (или Ctrl+V картинкой)" oninput="handleNewMoviePosterUrl(this.value)" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-all">
+              <button type="button" onclick="autoFetchPosterByTitle('rate')" class="w-full mt-2 py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-wand-magic-sparkles"></i><span>Найти обложку в сети автоматом</span>
+              </button>
             </div>
             <div class="w-64 sm:w-72 mt-4 bg-slate-950/80 border border-slate-800/90 rounded-2xl p-3.5 text-center">
               <div class="text-[11px] text-slate-400">Прогноз позиции в рейтинге:</div>
@@ -2568,7 +2571,12 @@
           <div class="lg:col-span-8 flex flex-col gap-6">
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
               <div class="sm:col-span-9">
-                <label id="rate-title-label" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2"><i class="fa-solid fa-film text-amber-400 mr-1"></i> Название фильма *</label>
+                <div class="flex items-center justify-between mb-2 gap-2">
+                  <label id="rate-title-label" class="block text-xs font-bold text-slate-300 uppercase tracking-wider"><i class="fa-solid fa-film text-amber-400 mr-1"></i> Название фильма *</label>
+                  <button type="button" id="rate-autofetch-btn" onclick="autoFetchPosterByTitle('rate')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 text-[11px] font-extrabold transition-all flex items-center gap-1.5 shrink-0" title="Автоматически найти HD-постер и год по названию">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i><span>✨ Найти постер</span>
+                  </button>
+                </div>
                 <input type="text" id="rate-title-input" oninput="checkRateSagaAutoLink(this.value)" placeholder="Например: Начало, Джентльмены, Ла-Ла Ленд..." class="w-full bg-slate-950/90 border border-slate-800 rounded-2xl px-4 py-3 text-sm sm:text-base font-bold text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
                 <!-- Умная подсказка Saga Auto-Linker во вкладке Оценить -->
                 <div id="rate-saga-autolink-banner" class="hidden mt-2 bg-amber-500/15 border border-amber-500/40 rounded-xl p-2.5 text-xs text-amber-300 items-center justify-between gap-2"></div>
@@ -2847,6 +2855,9 @@
               </label>
             </div>
             <input type="text" id="wish-poster-url" placeholder="Или ссылка (URL)..." oninput="handleWishlistPosterUrl(this.value)" class="w-48 mt-3 bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500">
+            <button type="button" onclick="autoFetchPosterByTitle('wishlist')" class="w-48 mt-2 py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 text-[11px] font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-wand-magic-sparkles"></i><span>Найти постер в сети</span>
+            </button>
           </div>
 
           <div class="lg:col-span-9 flex flex-col gap-4">
@@ -2859,7 +2870,12 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
               <div class="sm:col-span-6">
-                <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Название фильма или сериала *</label>
+                <div class="flex items-center justify-between mb-1.5 gap-2">
+                  <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">Название фильма или сериала *</label>
+                  <button type="button" id="wish-autofetch-btn" onclick="autoFetchPosterByTitle('wishlist')" class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 text-[11px] font-extrabold transition-all flex items-center gap-1 shrink-0" title="Найти официальный постер и год автоматически">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i><span>✨ Найти постер</span>
+                  </button>
+                </div>
                 <input type="text" id="wish-title-input" oninput="checkWishlistSagaAutoLink(this.value)" placeholder="Например: Остров проклятых, Джентльмены, Друзья..." class="w-full bg-slate-950/90 border border-slate-800 rounded-2xl px-4 py-2.5 text-sm font-bold text-white placeholder-slate-600 focus:outline-none focus:border-amber-500">
                 <!-- Умная подсказка Saga Auto-Linker в Вишлисте -->
                 <div id="wish-saga-autolink-banner" class="hidden mt-2 bg-amber-500/15 border border-amber-500/40 rounded-xl p-2.5 text-xs text-amber-300 items-center justify-between gap-2"></div>
@@ -9052,6 +9068,9 @@
           <div class="w-full">
             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Ссылка (URL) на постер:</label>
             <input type="text" id="edit-media-poster-url" placeholder="https://..." oninput="handleEditModalPosterUrl(this.value)" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500">
+            <button type="button" id="edit-media-autofetch-btn" onclick="autoFetchPosterByTitle('edit_media')" class="w-full mt-2 py-1.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 text-[11px] font-extrabold transition-all flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-wand-magic-sparkles"></i><span>✨ Найти постер</span>
+            </button>
           </div>
         </div>
 
@@ -9271,6 +9290,9 @@
           <div class="w-full">
             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Ссылка (URL) на постер:</label>
             <input type="text" id="edit-wish-poster-url" placeholder="https://..." oninput="handleEditWishPosterUrl(this.value)" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500">
+            <button type="button" id="edit-wish-autofetch-btn" onclick="autoFetchPosterByTitle('edit_wish')" class="w-full mt-2 py-1.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 text-[11px] font-extrabold transition-all flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-wand-magic-sparkles"></i><span>✨ Найти постер</span>
+            </button>
           </div>
         </div>
 
@@ -10217,6 +10239,165 @@
       }
       const firstMovie = filteredMovies[currentIndex] || MOVIES_DATABASE[0];
       if (firstMovie) openFilmOnFanfilm(firstMovie.title);
+    }
+
+    // ==================== АВТОПОИСК HD-ПОСТЕРА И ГОДА ПО НАЗВАНИЮ (БЕЗ API-КЛЮЧЕЙ) ====================
+    async function autoFetchPosterByTitle(targetContext = 'wishlist') {
+      const cfgMap = {
+        wishlist: {
+          titleId: 'wish-title-input',
+          yearId: 'wish-year-input',
+          urlId: 'wish-poster-url',
+          previewId: 'wish-poster-preview',
+          typeId: 'wish-type-select',
+          btnId: 'wish-autofetch-btn'
+        },
+        rate: {
+          titleId: 'rate-title-input',
+          yearId: 'rate-year-input',
+          urlId: 'rate-poster-url',
+          previewId: 'rate-poster-preview',
+          typeId: null,
+          btnId: 'rate-autofetch-btn'
+        },
+        edit_media: {
+          titleId: 'edit-media-title',
+          yearId: 'edit-media-year',
+          urlId: 'edit-media-poster-url',
+          previewId: 'edit-media-poster-preview',
+          typeId: null,
+          btnId: 'edit-media-autofetch-btn'
+        },
+        edit_wish: {
+          titleId: 'edit-wish-title',
+          yearId: 'edit-wish-year',
+          urlId: 'edit-wish-poster-url',
+          previewId: 'edit-wish-poster-preview',
+          typeId: 'edit-wish-type',
+          btnId: 'edit-wish-autofetch-btn'
+        }
+      };
+
+      const cfg = cfgMap[targetContext] || cfgMap.wishlist;
+      const titleInp = document.getElementById(cfg.titleId);
+      const rawTitle = (titleInp?.value || '').trim();
+
+      if (!rawTitle) {
+        if (titleInp) {
+          titleInp.focus();
+          titleInp.classList.add('border-rose-500');
+          setTimeout(() => titleInp.classList.remove('border-rose-500'), 1600);
+        }
+        showClipboardPasteToast('Сначала введите название фильма или сериала! 🎬');
+        return;
+      }
+
+      const btn = document.getElementById(cfg.btnId);
+      const oldBtnHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Ищем постер...</span>';
+      }
+
+      try {
+        const cleanQuery = rawTitle.replace(/["«»]/g, '').trim();
+        let foundPoster = '';
+        let foundYear = null;
+
+        // 1. Сначала проверяем локальную базу дневника и вишлиста (мгновенное совпадение)
+        const localPool = [...MOVIES_DATABASE, ...SERIES_DATABASE, ...wishlistItems];
+        const localMatch = localPool.find(item =>
+          item.title && item.title.toLowerCase().trim() === cleanQuery.toLowerCase() &&
+          item.poster && !item.poster.startsWith('data:image/svg+xml')
+        );
+
+        if (localMatch) {
+          foundPoster = localMatch.poster;
+          foundYear = localMatch.year;
+        }
+
+        // 2. Поиск через открытый iTunes Search API (RU и US витрины, поддерживает корс и отдаёт обложки 600x900)
+        if (!foundPoster) {
+          let isSeriesSearch = false;
+          if (targetContext === 'rate' && rateMediaType === 'series') isSeriesSearch = true;
+          else if (cfg.typeId && document.getElementById(cfg.typeId)?.value === 'series') isSeriesSearch = true;
+
+          const entityOrder = isSeriesSearch ? ['tvSeason', 'movie'] : ['movie', 'tvSeason'];
+          const countries = ['RU', 'US'];
+
+          for (const entity of entityOrder) {
+            if (foundPoster) break;
+            for (const country of countries) {
+              const apiUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQuery)}&country=${country}&entity=${entity}&limit=4`;
+              const resp = await fetch(apiUrl);
+              if (!resp.ok) continue;
+              const data = await resp.json();
+              if (data && Array.isArray(data.results) && data.results.length > 0) {
+                const best = data.results[0];
+                if (best.artworkUrl100) {
+                  foundPoster = best.artworkUrl100
+                    .replace('100x100bb', '600x900bb')
+                    .replace('100x100', '600x900');
+                  if (best.releaseDate) {
+                    const parsedY = parseInt(best.releaseDate.slice(0, 4), 10);
+                    if (!isNaN(parsedY) && parsedY >= 1900) foundYear = parsedY;
+                  }
+                  break;
+                }
+              }
+            }
+          }
+        }
+
+        // 3. Дополнительный фоллбэк для сериалов через открытый TVMaze API (без ключей)
+        if (!foundPoster) {
+          const tvResp = await fetch(`https://api.tvmaze.com/singlesearch/shows?q=${encodeURIComponent(cleanQuery)}`);
+          if (tvResp.ok) {
+            const tvData = await tvResp.json();
+            if (tvData && tvData.image && (tvData.image.original || tvData.image.medium)) {
+              foundPoster = tvData.image.original || tvData.image.medium;
+              if (tvData.premiered) {
+                const y = parseInt(tvData.premiered.slice(0, 4), 10);
+                if (!isNaN(y)) foundYear = y;
+              }
+            }
+          }
+        }
+
+        if (foundPoster) {
+          const urlInp = document.getElementById(cfg.urlId);
+          const previewImg = document.getElementById(cfg.previewId);
+          const yearInp = document.getElementById(cfg.yearId);
+
+          if (urlInp) urlInp.value = foundPoster;
+          if (previewImg) previewImg.src = foundPoster;
+
+          if (targetContext === 'wishlist') newWishUploadedPoster = foundPoster;
+          else if (targetContext === 'rate') newMovieUploadedPoster = foundPoster;
+          else if (targetContext === 'edit_media') editModalTempPoster = foundPoster;
+          else if (targetContext === 'edit_wish') editWishTempPoster = foundPoster;
+
+          if (foundYear && yearInp) {
+            yearInp.value = foundYear;
+            if (targetContext === 'rate') {
+              const ratePrevY = document.getElementById('rate-preview-year');
+              if (ratePrevY) ratePrevY.innerText = String(foundYear);
+            }
+          }
+
+          showClipboardPasteToast(`Постер для «${cleanQuery}» успешно найден${foundYear ? ` (${foundYear} г.)` : ''}! ✨`);
+        } else {
+          showClipboardPasteToast(`Постер для «${cleanQuery}» не найден автоматически — попробуйте уточнить название или вставить ссылку 🔍`);
+        }
+      } catch (err) {
+        console.warn('Auto poster fetch error:', err);
+        showClipboardPasteToast('Не удалось связаться с сервером обложек. Проверьте интернет 🌐');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = oldBtnHtml;
+        }
+      }
     }
 
     function isOurAppStorageKey(lsKey) {
