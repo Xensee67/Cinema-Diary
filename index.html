@@ -10011,6 +10011,8 @@
     let confettiAnimId = null;
     let isSurvivorWheelMode = false;
     let survivorEliminatedLog = [];
+    let survivorAutoSpinTimeout = null;
+    let wheelWinSectorHighlight = -1;
 
     // Состояние новых игр: «Кино-Детектив (5 сек)» и «Кино-Таймлайн»
     let detectiveState = {
@@ -17238,6 +17240,7 @@
       if (!inputEl) return;
       const lines = inputEl.value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 72);
       wheelOptions = lines.length > 0 ? lines : ['Фильм 1', 'Фильм 2'];
+      wheelWinSectorHighlight = -1;
       safeLocalStorageSet('wheel_saved_options', inputEl.value);
 
       const badge = document.getElementById('wheel-count-badge');
@@ -17280,6 +17283,7 @@
         inputEl.value = '';
       }
       survivorEliminatedLog = [];
+      clearTimeout(survivorAutoSpinTimeout);
       renderSurvivorEliminatedUI();
       onWheelTextInput();
     }
@@ -17299,6 +17303,7 @@
     function toggleSurvivorWheelMode() {
       isSurvivorWheelMode = !isSurvivorWheelMode;
       survivorEliminatedLog = [];
+      clearTimeout(survivorAutoSpinTimeout);
       const btn = document.getElementById('survivor-mode-toggle-btn');
       if (btn) {
         if (isSurvivorWheelMode) {
@@ -17353,9 +17358,20 @@
 
         ctx.fillStyle = WHEEL_PALETTE[i % WHEEL_PALETTE.length];
         ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#090d16';
-        ctx.stroke();
+
+        if (i === wheelWinSectorHighlight) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+          ctx.fill();
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = '#fde047';
+          ctx.stroke();
+          ctx.restore();
+        } else {
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#090d16';
+          ctx.stroke();
+        }
 
         ctx.save();
         ctx.translate(cx, cy);
@@ -17388,26 +17404,67 @@
 
     function spinWheel(roller = 'pair') {
       if (isWheelSpinning || wheelOptions.length === 0) return;
+      clearTimeout(survivorAutoSpinTimeout);
       isWheelSpinning = true;
       currentWheelRoller = roller;
+      wheelWinSectorHighlight = -1;
 
       const badge = document.getElementById('wheel-active-roller-badge');
       if (badge) {
         const whoText = roller === 'mashko' ? 'Крутит Машко 💖' : roller === 'romashka' ? 'Крутит Ромашка ⚽' : 'Крутит Пара 🔥';
-        badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-amber-400"></i><span>${whoText}</span>`;
+        const modeTag = isSurvivorWheelMode && wheelOptions.length > 1 ? ` • Раунд на выбывание (осталось ${wheelOptions.length})` : '';
+        badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-amber-400"></i><span>${whoText}${modeTag}</span>`;
       }
 
+      const n = wheelOptions.length;
+      const TWO_PI = Math.PI * 2;
+      const arc = TWO_PI / n;
+
+      // 1. Заранее определяем случайный выигрышный сектор и рассчитываем финальный угол так,
+      // чтобы стрелка (наверху: 3π/2 = 270°) гарантированно останавливалась внутри сектора,
+      // вдали от разделительных линий (в безопасной центральной зоне 20%..80% ширины сектора).
+      const preselectedIndex = Math.floor(Math.random() * n);
+      const safeFraction = n === 1 ? 0.5 : (0.20 + Math.random() * 0.60);
+      const desiredOffsetInsideSector = (preselectedIndex + safeFraction) * arc;
+      const pointerPos = Math.PI * 1.5; // 270° (верхняя точка колеса под стрелкой)
+
       const startAngle = wheelAngle;
-      const extraSpins = (6 + Math.random() * 5) * Math.PI * 2;
-      const targetAngle = startAngle + extraSpins;
-      const duration = isSurvivorWheelMode && wheelOptions.length > 2 ? 2200 : 4200;
+      const currentNormalized = ((startAngle % TWO_PI) + TWO_PI) % TWO_PI;
+      const targetNormalized = ((pointerPos - desiredOffsetInsideSector) % TWO_PI + TWO_PI) % TWO_PI;
+
+      let deltaAngle = targetNormalized - currentNormalized;
+      if (deltaAngle <= 0) deltaAngle += TWO_PI;
+
+      const fullTurns = isSurvivorWheelMode && n > 2 ? (4 + Math.floor(Math.random() * 2)) : (6 + Math.floor(Math.random() * 4));
+      const targetAngle = startAngle + fullTurns * TWO_PI + deltaAngle;
+      const duration = isSurvivorWheelMode && n > 2 ? 1950 : 4000;
       const startTime = performance.now();
+      let lastTickSector = -1;
 
       function animateWheelFrame(now) {
         const elapsed = now - startTime;
         const progress = Math.min(1, elapsed / duration);
         const easeOut = 1 - Math.pow(1 - progress, 4);
         wheelAngle = startAngle + (targetAngle - startAngle) * easeOut;
+
+        // Анимация покачивания стрелки при прохождении границ секторов
+        const normWheel = ((wheelAngle % TWO_PI) + TWO_PI) % TWO_PI;
+        const relPointer = ((pointerPos - normWheel) % TWO_PI + TWO_PI) % TWO_PI;
+        const currentSectorUnderPointer = Math.floor(relPointer / arc) % n;
+        if (currentSectorUnderPointer !== lastTickSector && progress < 0.96) {
+          lastTickSector = currentSectorUnderPointer;
+          const ptr = document.getElementById('wheel-pointer');
+          if (ptr) {
+            ptr.classList.remove('pointer-tick-anim');
+            void ptr.offsetWidth;
+            ptr.classList.add('pointer-tick-anim');
+          }
+        }
+
+        if (progress >= 1) {
+          wheelAngle = targetAngle;
+          wheelWinSectorHighlight = preselectedIndex;
+        }
         drawWheel();
 
         if (progress < 1) {
@@ -17418,29 +17475,42 @@
           safeLocalStorageSet('wheel_spin_count', String(wheelSpinCount));
           evaluateAndRenderAchievements();
 
-          const n = wheelOptions.length;
-          const arc = (Math.PI * 2) / n;
-          // Стрелка наверху (-Math.PI / 2)
-          const pointerAngle = (Math.PI * 1.5 - (wheelAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-          const winIndex = Math.floor(pointerAngle / arc) % n;
+          const winIndex = preselectedIndex;
           const chosenOption = wheelOptions[winIndex];
 
           if (isSurvivorWheelMode && wheelOptions.length > 1) {
-            survivorEliminatedLog.push(chosenOption);
-            wheelOptions.splice(winIndex, 1);
-            const inputEl = document.getElementById('wheel-options-input');
-            if (inputEl) inputEl.value = wheelOptions.join('\n');
-            onWheelTextInput();
-            renderSurvivorEliminatedUI();
+            // Пауза 650 мс, чтобы вы увидели на каком секторе остановилась стрелка перед его сгоранием
+            survivorAutoSpinTimeout = setTimeout(() => {
+              survivorEliminatedLog.push(chosenOption);
+              wheelOptions.splice(winIndex, 1);
+              wheelWinSectorHighlight = -1;
+              const inputEl = document.getElementById('wheel-options-input');
+              if (inputEl) inputEl.value = wheelOptions.join('\n');
+              onWheelTextInput();
+              renderSurvivorEliminatedUI();
 
-            if (wheelOptions.length === 1) {
-              lastWinningOption = wheelOptions[0];
-              showWheelWinnerModal(lastWinningOption);
-            } else {
-              showClipboardPasteToast(`Выбыл вариант «${chosenOption}»! Осталось: ${wheelOptions.length} 🔥`);
-            }
+              if (wheelOptions.length === 1) {
+                lastWinningOption = wheelOptions[0];
+                if (badge) {
+                  badge.innerHTML = `<i class="fa-solid fa-crown text-amber-400"></i><span>Победитель Королевской битвы: ${esc(lastWinningOption)}!</span>`;
+                }
+                showWheelWinnerModal(lastWinningOption);
+              } else {
+                showClipboardPasteToast(`💥 Выбыл «${chosenOption}»! Осталось: ${wheelOptions.length} — крутим дальше...`);
+                // Автоматически запускаем следующий раунд Королевской битвы с тем же крутящим!
+                survivorAutoSpinTimeout = setTimeout(() => {
+                  const isRandomViewVisible = !document.getElementById('random-view')?.classList.contains('hidden');
+                  if (isSurvivorWheelMode && isRandomViewVisible && wheelOptions.length > 1) {
+                    spinWheel(roller);
+                  }
+                }, 450);
+              }
+            }, 650);
           } else {
             lastWinningOption = chosenOption;
+            if (badge) {
+              badge.innerHTML = `<i class="fa-solid fa-check-circle text-emerald-400"></i><span>Выпало: ${esc(chosenOption)}</span>`;
+            }
             showWheelWinnerModal(chosenOption);
           }
         }
