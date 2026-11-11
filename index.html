@@ -1044,11 +1044,18 @@
         <button onclick="setFilter('fav_romashka')" data-filter="fav_romashka" class="filter-pill px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-star mr-1 text-blue-400"></i> Топ Ромашки (10.0)</button>
         <button onclick="setFilter('fav_mashko')" data-filter="fav_mashko" class="filter-pill px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all bg-slate-800 text-slate-300 hover:bg-slate-700"><i class="fa-solid fa-star mr-1 text-pink-400"></i> Топ Машко (10.0)</button>
       </div>
-      <!-- Тумблер Компактного / Уютного вида сетки (виден только во вкладке Сетка) -->
-      <button type="button" id="grid-density-toggle-btn" onclick="toggleCompactGridMode()" class="hidden mb-2 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700 transition-all items-center gap-1.5 shrink-0" title="Переключить между Уютным и Компактным видом карточек">
-        <i id="grid-density-icon" class="fa-solid fa-table-cells"></i>
-        <span id="grid-density-label">Компактный вид</span>
-      </button>
+      <div class="flex items-center gap-2 shrink-0 mb-2">
+        <!-- Кнопка интерактивной дуэли «Битва за строчку» для соседей с одинаковым баллом -->
+        <button type="button" id="tie-breaker-duel-btn" onclick="openTieBreakerModal()" class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-gradient-to-r from-amber-500/20 to-rose-500/20 hover:from-amber-500 hover:to-rose-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 transition-all flex items-center gap-1.5 shrink-0 shadow-sm" title="Решить спор за места между фильмами с одинаковым средним баллом">
+          <i class="fa-solid fa-scale-unbalanced"></i>
+          <span>Битва за строчку ⚔️</span>
+        </button>
+        <!-- Тумблер Компактного / Уютного вида сетки (виден только во вкладке Сетка) -->
+        <button type="button" id="grid-density-toggle-btn" onclick="toggleCompactGridMode()" class="hidden px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700 transition-all items-center gap-1.5 shrink-0" title="Переключить между Уютным и Компактным видом карточек">
+          <i id="grid-density-icon" class="fa-solid fa-table-cells"></i>
+          <span id="grid-density-label">Компактный вид</span>
+        </button>
+      </div>
     </div>
   </section>
 
@@ -8570,9 +8577,9 @@
                 </div>
                 <div>
                   <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Детализация</label>
-                  <select id="wrapped- layout-select" onchange="renderWrappedPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-amber-500">
+                  <select id="wrapped-layout-select" onchange="renderWrappedPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-2 text-xs font-bold text-white focus:outline-none focus:border-amber-500">
                     <option value="full">📊 Полная инфографика</option>
-                    <option value=" awards">👑 С титулами и цитатой</option>
+                    <option value="awards">👑 С титулами и цитатой</option>
                   </select>
                 </div>
               </div>
@@ -8978,6 +8985,46 @@
       <!-- Кнопка «Вскрыть карты!» или драматичный результат дуэли -->
       <div id="blind-duel-action-zone" class="flex flex-col items-center gap-4">
         <!-- Наполняется динамически -->
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО «БИТВА ЗА СТРОЧКУ» (ИНТЕРАКТИВНЫЙ ТАЙ-БРЕЙК ДЛЯ СОСЕДЕЙ ПО РЕЙТИНГУ) -->
+  <div id="tie-breaker-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-500/50 rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-[0_0_60px_rgba(245,158,11,0.25)] relative my-8 slide-fade-enter">
+      <button onclick="closeTieBreakerModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl gold-neon-icon flex items-center justify-center text-xl font-black shadow-lg shrink-0">
+            ⚔️
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">Tie-Breaker Duel</span>
+              <span id="tie-breaker-pair-counter" class="text-xs text-slate-400 font-semibold">Спор за место в топе</span>
+            </div>
+            <h3 id="tie-breaker-header-title" class="heading-font text-xl sm:text-2xl font-black text-white mt-0.5">Битва за строчку в рейтинге</h3>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="stepTieBreakerPair(-1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition-all" title="Предыдущая пара с одинаковым баллом">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button type="button" onclick="stepTieBreakerPair(1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition-all" title="Следующая пара с одинаковым баллом">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <p id="tie-breaker-subtitle" class="text-xs sm:text-sm text-slate-300 mb-5 text-center">
+        У этих двух картин одинаковый средний балл! Нажмите на фаворита, который запал в душу чуть сильнее — он займёт более высокую строчку, сохранив красивую оценку.
+      </p>
+
+      <div id="tie-breaker-arena" class="grid grid-cols-1 sm:grid-cols-11 gap-5 items-center">
+        <!-- Заполняется динамически функцией renderTieBreakerArena() -->
       </div>
     </div>
   </div>
@@ -10871,7 +10918,22 @@
       }
 
       window.addEventListener('keydown', (e) => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+        if (e.key === 'Escape') {
+          if (!document.getElementById('poster-lightbox-modal')?.classList.contains('hidden')) { closePosterLightbox(); return; }
+          if (!document.getElementById('wrapped-stories-modal')?.classList.contains('hidden')) { closeWrappedStoriesModal(); return; }
+          if (!document.getElementById('blind-duel-modal')?.classList.contains('hidden')) { closeBlindDuelModal(); return; }
+          if (!document.getElementById('tie-breaker-modal')?.classList.contains('hidden')) { closeTieBreakerModal(); return; }
+          if (!document.getElementById('edit-media-modal')?.classList.contains('hidden')) { closeEditMediaModal(); return; }
+          if (!document.getElementById('edit-wishlist-modal')?.classList.contains('hidden')) { closeEditWishlistModal(); return; }
+          if (!document.getElementById('edit-saga-modal')?.classList.contains('hidden')) { closeEditSagaModal(); return; }
+          if (!document.getElementById('backup-modal')?.classList.contains('hidden')) { closeBackupModal(); return; }
+          if (!document.getElementById('appsync-modal')?.classList.contains('hidden')) { AppSync('close'); return; }
+          if (!document.getElementById('wheel-winner-modal')?.classList.contains('hidden')) { closeWheelWinnerModal(); return; }
+          if (!document.getElementById('cinema-mode-modal')?.classList.contains('hidden')) { closeCinemaModeModal(); return; }
+          closeCyberContextMenu();
+          closeMobileMoreSheet();
+        }
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.isContentEditable) return;
         const isSlideshowActive = !document.getElementById('slideshow-view').classList.contains('hidden');
         if (!isSlideshowActive) return;
 
@@ -10995,25 +11057,40 @@
       }, 32000);
     }
 
+    // Каскадный компаратор (Средний балл -> Личный выбор в дуэли orderWeight -> Меньше спор Δ -> Наличие десятки -> Год)
+    function cascadeMediaSortComparator(a, b) {
+      // 1. По среднему баллу (убывание)
+      if (Math.abs(b.avg - a.avg) >= 0.001) return b.avg - a.avg;
+
+      // 2. По результату вашей очной дуэли «Битва за строчку» (orderWeight)
+      const wA = Number(a.orderWeight) || 0;
+      const wB = Number(b.orderWeight) || 0;
+      if (Math.abs(wB - wA) >= 0.0001) return wB - wA;
+
+      // 3. По уровню согласия пары (меньше разница Δ -> выше место)
+      if (Math.abs(a.diff - b.diff) >= 0.001) return a.diff - b.diff;
+
+      // 4. Наличие максимальной оценки 10.0 хотя бы от одного из партнёров
+      const aHasTen = (Number(a.romashka) === 10 || Number(a.mashko) === 10) ? 1 : 0;
+      const bHasTen = (Number(b.romashka) === 10 || Number(b.mashko) === 10) ? 1 : 0;
+      if (bHasTen !== aHasTen) return bHasTen - aHasTen;
+
+      // 5. По году выхода (свежие выше) или стабильно по ID
+      if ((b.year || 0) !== (a.year || 0)) return (b.year || 0) - (a.year || 0);
+      return String(a.id).localeCompare(String(b.id));
+    }
+
     function recalculateRanksAndStats() {
-      // Пересчитываем места в базе ФИЛЬМОВ
-      MOVIES_DATABASE.sort((a, b) => b.avg - a.avg);
+      // Пересчитываем сквозные уникальные места (1, 2, 3, 4...) в базе ФИЛЬМОВ по каскадному алгоритму
+      MOVIES_DATABASE.sort(cascadeMediaSortComparator);
       for (let i = 0; i < MOVIES_DATABASE.length; i++) {
-        if (i > 0 && Math.abs(MOVIES_DATABASE[i].avg - MOVIES_DATABASE[i - 1].avg) < 0.001) {
-          MOVIES_DATABASE[i].rank = MOVIES_DATABASE[i - 1].rank;
-        } else {
-          MOVIES_DATABASE[i].rank = i + 1;
-        }
+        MOVIES_DATABASE[i].rank = i + 1;
       }
 
-      // Пересчитываем места в базе СЕРИАЛОВ независимо от фильмов
-      SERIES_DATABASE.sort((a, b) => b.avg - a.avg);
+      // Пересчитываем сквозные уникальные места в базе СЕРИАЛОВ
+      SERIES_DATABASE.sort(cascadeMediaSortComparator);
       for (let i = 0; i < SERIES_DATABASE.length; i++) {
-        if (i > 0 && Math.abs(SERIES_DATABASE[i].avg - SERIES_DATABASE[i - 1].avg) < 0.001) {
-          SERIES_DATABASE[i].rank = SERIES_DATABASE[i - 1].rank;
-        } else {
-          SERIES_DATABASE[i].rank = i + 1;
-        }
+        SERIES_DATABASE[i].rank = i + 1;
       }
 
       const activeDB = getActiveDatabase();
@@ -11038,11 +11115,182 @@
       const perfectBtn = document.getElementById('filter-btn-perfect');
       if (perfectBtn) perfectBtn.innerHTML = `<i class="fa-solid fa-heart mr-1 text-rose-400"></i> Полное согласие (${perfectCount})`;
 
+      updateTieBreakerButtonBadge();
+
       if (typeof evaluateAndRenderAchievements === 'function') {
         evaluateAndRenderAchievements();
       }
       if (typeof renderLiveBioFavorites === 'function') {
         renderLiveBioFavorites();
+      }
+    }
+
+    // ==================== ИНТЕРАКТИВНАЯ ДУЭЛЬ «БИТВА ЗА СТРОЧКУ» (TIE-BREAKER DUEL) ====================
+    let tieBreakerPairsList = [];
+    let currentTieBreakerPairIdx = 0;
+
+    function collectEqualAvgNeighborPairs() {
+      const activeDB = getActiveDatabase();
+      const pairs = [];
+      for (let i = 0; i < activeDB.length - 1; i++) {
+        const cur = activeDB[i];
+        const next = activeDB[i + 1];
+        if (Math.abs(cur.avg - next.avg) < 0.001) {
+          pairs.push({ higher: cur, lower: next, rankHigher: cur.rank, rankLower: next.rank });
+        }
+      }
+      return pairs;
+    }
+
+    function updateTieBreakerButtonBadge() {
+      const btn = document.getElementById('tie-breaker-duel-btn');
+      if (!btn) return;
+      const pairs = collectEqualAvgNeighborPairs();
+      if (pairs.length > 0) {
+        btn.classList.remove('hidden');
+        btn.classList.add('flex');
+        btn.innerHTML = `<i class="fa-solid fa-scale-unbalanced"></i><span>Битва за строчку ⚔️ (${pairs.length})</span>`;
+      } else {
+        btn.classList.add('hidden');
+        btn.classList.remove('flex');
+      }
+    }
+
+    function openTieBreakerModal(preferredMediaId = null) {
+      tieBreakerPairsList = collectEqualAvgNeighborPairs();
+      if (tieBreakerPairsList.length === 0) {
+        showClipboardPasteToast('Все места в рейтинге уже распределены однозначно! 🏆');
+        return;
+      }
+
+      currentTieBreakerPairIdx = 0;
+      if (preferredMediaId) {
+        const foundIdx = tieBreakerPairsList.findIndex(
+          p => p.higher.id === preferredMediaId || p.lower.id === preferredMediaId
+        );
+        if (foundIdx !== -1) currentTieBreakerPairIdx = foundIdx;
+      }
+
+      renderTieBreakerArena();
+      const modal = document.getElementById('tie-breaker-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeTieBreakerModal() {
+      const modal = document.getElementById('tie-breaker-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function stepTieBreakerPair(delta) {
+      tieBreakerPairsList = collectEqualAvgNeighborPairs();
+      if (tieBreakerPairsList.length === 0) {
+        closeTieBreakerModal();
+        return;
+      }
+      currentTieBreakerPairIdx = (currentTieBreakerPairIdx + delta + tieBreakerPairsList.length) % tieBreakerPairsList.length;
+      renderTieBreakerArena();
+    }
+
+    function renderTieBreakerArena() {
+      const arena = document.getElementById('tie-breaker-arena');
+      const headerTitle = document.getElementById('tie-breaker-header-title');
+      const counterEl = document.getElementById('tie-breaker-pair-counter');
+      const subEl = document.getElementById('tie-breaker-subtitle');
+      if (!arena) return;
+
+      if (tieBreakerPairsList.length === 0) {
+        closeTieBreakerModal();
+        return;
+      }
+
+      if (currentTieBreakerPairIdx >= tieBreakerPairsList.length) {
+        currentTieBreakerPairIdx = 0;
+      }
+
+      const pair = tieBreakerPairsList[currentTieBreakerPairIdx];
+      const leftItem = pair.higher;
+      const rightItem = pair.lower;
+
+      if (counterEl) {
+        counterEl.innerText = `Спорная пара ${currentTieBreakerPairIdx + 1} из ${tieBreakerPairsList.length} • Балл ⭐ ${leftItem.avg.toFixed(2)}`;
+      }
+      if (headerTitle) {
+        headerTitle.innerText = `Битва за #${pair.rankHigher} и #${pair.rankLower} место в топе!`;
+      }
+      if (subEl) {
+        subEl.innerHTML = `Обе картины имеют средний балл <b>${leftItem.avg.toFixed(2)}</b>. Сейчас выше стоит <b>«${esc(leftItem.title)}» (#${pair.rankHigher})</b>. Кто достоин быть на строчку выше?`;
+      }
+
+      const renderCompetitorCard = (item, currentRank, isCurrentlyHigher) => `
+        <div onclick="chooseTieBreakerWinner('${leftItem.id}', '${rightItem.id}', '${item.id}')" class="sm:col-span-5 group bg-slate-950/90 border-2 ${isCurrentlyHigher ? 'border-amber-400/70 shadow-[0_0_25px_rgba(251,191,36,0.18)]' : 'border-slate-800 hover:border-amber-400'} rounded-3xl p-4 sm:p-5 cursor-pointer transition-all hover:-translate-y-1 flex flex-col items-center text-center">
+          <div class="relative w-44 sm:w-48 h-64 rounded-2xl overflow-hidden mb-3 bg-slate-900 border border-slate-700">
+            <img src="${esc(item.poster)}" alt="${esc(item.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="handleImgError(this)">
+            <span class="absolute top-2 left-2 bg-slate-950/90 text-amber-400 border border-amber-500/40 text-xs font-black px-2.5 py-0.5 rounded-lg">#${currentRank}</span>
+            <span class="absolute bottom-2 right-2 bg-slate-950/90 text-slate-300 text-xs px-2 py-0.5 rounded-lg">${item.year}</span>
+          </div>
+          <span class="text-[11px] px-2.5 py-0.5 rounded-full ${isCurrentlyHigher ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-slate-800 text-slate-300'} font-bold mb-1">
+            ${isCurrentlyHigher ? `Сейчас выше (#${currentRank})` : `Претендент (#${currentRank})`}
+          </span>
+          <h4 class="heading-font text-lg sm:text-xl font-black text-white line-clamp-1 mb-1">${esc(item.title)}</h4>
+          <div class="text-xs text-slate-400 mb-3">
+            <span class="text-blue-400 font-bold">Р: ${item.romashka.toFixed(1)}</span> •
+            <span class="text-pink-400 font-bold">М: ${item.mashko.toFixed(1)}</span> •
+            <span class="text-amber-300 font-extrabold">Δ ${item.diff.toFixed(1)}</span>
+          </div>
+          <button type="button" class="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-xs shadow-lg transition-all">
+            Поставить на #${pair.rankHigher} место 👑
+          </button>
+        </div>
+      `;
+
+      arena.innerHTML = `
+        ${renderCompetitorCard(leftItem, pair.rankHigher, true)}
+        <div class="sm:col-span-1 flex justify-center">
+          <div class="w-11 h-11 rounded-full bg-amber-500 text-slate-950 font-black heading-font flex items-center justify-center text-xs shadow-lg">VS</div>
+        </div>
+        ${renderCompetitorCard(rightItem, pair.rankLower, false)}
+      `;
+    }
+
+    function chooseTieBreakerWinner(idA, idB, winnerId) {
+      const activeDB = getActiveDatabase();
+      const itemA = activeDB.find(m => m.id === idA);
+      const itemB = activeDB.find(m => m.id === idB);
+      if (!itemA || !itemB) return;
+
+      const winner = winnerId === idA ? itemA : itemB;
+      const loser = winnerId === idA ? itemB : itemA;
+
+      const maxWeight = Math.max(Number(winner.orderWeight) || 0, Number(loser.orderWeight) || 0);
+      winner.orderWeight = Number((maxWeight + 0.05).toFixed(4));
+      loser.orderWeight = Number((maxWeight - 0.01).toFixed(4));
+
+      saveEditedMediaOverride(winner);
+      saveEditedMediaOverride(loser);
+
+      if (winner.isCustom || loser.isCustom) {
+        const customMovies = MOVIES_DATABASE.filter(m => m.isCustom);
+        safeLocalStorageSet('custom_added_movies', JSON.stringify(customMovies));
+        saveCustomSeriesToStorage();
+      }
+
+      recalculateRanksAndStats();
+      applyFilters();
+      registerSafetyGuardChange();
+
+      showClipboardPasteToast(`«${winner.title}» закреплён на #${winner.rank} месте (выше «${loser.title}» #${loser.rank})! 🏆`);
+
+      tieBreakerPairsList = collectEqualAvgNeighborPairs();
+      if (tieBreakerPairsList.length > 0 && currentTieBreakerPairIdx < tieBreakerPairsList.length) {
+        renderTieBreakerArena();
+      } else {
+        closeTieBreakerModal();
       }
     }
 
@@ -12742,6 +12990,7 @@
           mashko: itemObj.mashko,
           avg: itemObj.avg,
           diff: itemObj.diff,
+          orderWeight: Number(itemObj.orderWeight) || 0,
           status: itemObj.status,
           description: itemObj.description,
           poster: itemObj.poster
@@ -12763,6 +13012,7 @@
               item.mashko = ov.mashko ?? item.mashko;
               item.avg = ov.avg ?? item.avg;
               item.diff = ov.diff ?? item.diff;
+              if (ov.orderWeight !== undefined) item.orderWeight = Number(ov.orderWeight) || 0;
               item.status = ov.status ?? item.status;
               item.description = ov.description ?? item.description;
               if (ov.poster) item.poster = ov.poster;
@@ -16680,6 +16930,7 @@
         'deleteMovieBet',
         'toggleManualAchievement',
         'deleteTournamentHistoryItem',
+        'chooseTieBreakerWinner',
         'importFullBackup'
       ];
 
@@ -17169,11 +17420,21 @@
 
       resetRateForm();
 
+      // Проверяем, возникла ли ничья по среднему баллу у нового фильма с соседом в топе
+      const activePool = rateMediaType === 'series' ? SERIES_DATABASE : MOVIES_DATABASE;
+      const hasTieNeighbor = activePool.some(other => other.id !== newId && Math.abs(other.avg - avg) < 0.001);
+
       if (openSlideAfter) {
         switchMediaSpace(rateMediaType === 'series' ? 'series' : 'movies');
         setViewMode('slideshow');
         const idx = filteredMovies.findIndex(m => m.id === newId);
         if (idx !== -1) jumpToSlide(idx);
+      }
+
+      if (hasTieNeighbor) {
+        setTimeout(() => {
+          openTieBreakerModal(newId);
+        }, 450);
       }
     }
 
@@ -18464,6 +18725,7 @@
 
       const themeKey = document.getElementById('wrapped-theme-select')?.value || 'gold';
       const focusMode = document.getElementById('wrapped-focus-select')?.value || 'top5';
+      const layoutMode = document.getElementById('wrapped-layout-select')?.value || 'full';
       const pal = WRAPPED_THEMES_PALETTE[themeKey] || WRAPPED_THEMES_PALETTE.gold;
 
       const title = document.getElementById('wrapped-custom-title')?.value || 'НАШ КИНО-WRAPPED 2026';
@@ -18500,7 +18762,7 @@
       ctx.textAlign = 'center';
       ctx.fillStyle = pal.accent;
       ctx.font = '800 12px Inter, sans-serif';
-      ctx.fillText(`🎬 КИНОДНЕВНИК ПАРЫ • ТЕМА: ${pal.name.toUpperCase()}`, w / 2, 58);
+      ctx.fillText(`🎬 КИНОДНЕВНИК ПАРЫ • ${layoutMode === 'awards' ? 'ЗАЛ НАГРАД И ТИТУЛОВ' : 'ТЕМА: ' + pal.name.toUpperCase()}`, w / 2, 58);
 
       ctx.fillStyle = pal.titleColor;
       ctx.font = '900 28px Montserrat, sans-serif';
